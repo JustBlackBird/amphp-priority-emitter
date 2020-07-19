@@ -27,7 +27,10 @@ final class Emitter
     {
         $this->values = new \SplPriorityQueue();
         $this->backPressure = new \SplPriorityQueue();
-        $this->iterator = $this->createIterator();
+        $this->iterator = new CallbackIterator(
+            fn(): Promise => $this->advance(),
+            fn() => $this->getCurrent()
+        );
     }
 
     public function iterate(): Iterator
@@ -61,7 +64,7 @@ final class Emitter
     public function complete()
     {
         if ($this->complete) {
-            throw new \Error('Iterator has already been completed');
+            throw new \Error('CallbackIterator has already been completed');
         }
 
         $this->complete = new Success(false);
@@ -122,38 +125,6 @@ final class Emitter
         }
 
         return $this->current;
-    }
-
-    private function createIterator(): Iterator
-    {
-        $advance = function (): Promise {
-            return $this->advance();
-        };
-
-        $getCurrent = function () {
-            return $this->getCurrent();
-        };
-
-        return new class ($advance, $getCurrent) implements Iterator {
-            private $advance;
-            private $getCurrent;
-
-            public function __construct(callable $advance, callable $getCurrent)
-            {
-                $this->advance = $advance;
-                $this->getCurrent = $getCurrent;
-            }
-
-            public function advance(): Promise
-            {
-                return ($this->advance)();
-            }
-
-            public function getCurrent()
-            {
-                return ($this->getCurrent)();
-            }
-        };
     }
 
     private function normalizePriority(int $priority): string
