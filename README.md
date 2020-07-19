@@ -59,3 +59,5 @@ Loop::run(static function() {
 ## License
 
 [MIT](http://opensource.org/licenses/MIT) (c) Dmitry Simushev
+
+The implementation is based on [AMP Emitter](https://amphp.org/amp/iterators/#emitter).
