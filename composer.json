@@ -32,5 +32,16 @@
         "psr-4": {
             "JustBlackBird\\AmpPriorityEmitter\\Tests\\": "tests/"
         }
+    },
+    "archive": {
+        "exclude": [
+            "/.github",
+            "/examples",
+            "/tests",
+            ".gitignore",
+            "phpcs.xml.dist",
+            "phpunit.xml",
+            "psalm.xml"
+        ]
     }
 }
