@@ -30,7 +30,7 @@ jobs:
           php-version: '7.4'
           tools: phpcs
       - name: Run linter
-        run: phpcs -v
+        run: phpcs
 
   psalm:
     name: Psalm
@@ -42,6 +42,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          tools: psalm
+          tools: composer
+      - name: Install deps
+        run: composer install
+      # Cannot use "psalm" tool because it requires composer's autoload.php
       - name: Run psalm
-        run: psalm --root=$(pwd)
+        run: vendor/bin/psalm
