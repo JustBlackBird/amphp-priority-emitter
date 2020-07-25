@@ -1,6 +1,6 @@
 # AMP priority emitter
 
-![Test](https://github.com/JustBlackBird/amphp-priority-emitter/workflows/Test/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/justblackbird/amphp-priority-emitter/v)](//packagist.org/packages/justblackbird/amphp-priority-emitter) ![Test](https://github.com/JustBlackBird/amphp-priority-emitter/workflows/Test/badge.svg)
 
 > In-memory implementation of async emitter with prioritized messages
 
@@ -38,6 +38,11 @@ composer require justblackbird/amphp-priority-emitter
 use Amp\Loop;
 use JustBlackBird\AmpPriorityEmitter\Emitter;
 
+// The following example will output:
+// - important message
+// - message one
+// - message two
+
 Loop::run(static function() {
     $emitter = new Emitter();
 
@@ -51,11 +56,6 @@ Loop::run(static function() {
         echo "- " . $iterator->getCurrent() . "\n";        
     }
 });
-
-// Will output:
-// - important message
-// - message one
-// - message two
 ```
 
 ## License
