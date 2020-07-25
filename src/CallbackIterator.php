@@ -9,6 +9,8 @@ use Amp\Promise;
 
 /**
  * An iterator implementation that hides emitter's API from consumer code.
+ *
+ * @internal
  */
 final class CallbackIterator implements Iterator
 {

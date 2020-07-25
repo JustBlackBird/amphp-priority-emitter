@@ -7,6 +7,8 @@ namespace JustBlackBird\AmpPriorityEmitter;
 /**
  * Priority queue implementation which keeps stable order for items with
  * equal priority.
+ *
+ * @internal
  */
 final class StablePriorityQueue
 {

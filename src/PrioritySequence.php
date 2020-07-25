@@ -6,6 +6,8 @@ namespace JustBlackBird\AmpPriorityEmitter;
 
 /**
  * Generates sequence with prioritized items.
+ *
+ * @internal
  */
 final class PrioritySequence
 {
