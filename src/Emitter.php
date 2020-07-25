@@ -10,15 +10,22 @@ use Amp\Iterator;
 use Amp\Promise;
 use Amp\Success;
 
+/**
+ * This emitter works similar to {@link \Amp\Emitter} but allows emitted
+ * items to have consumption priority.
+ */
 final class Emitter
 {
     private StablePriorityQueue $values;
     private StablePriorityQueue $backPressure;
     private Iterator $iterator;
-    private $current;
-    private bool $hasCurrent = false;
+
     private ?Deferred $waiting = null;
     private ?Promise $complete = null;
+
+    /** @var mixed */
+    private $current;
+    private bool $hasCurrent = false;
 
     public function __construct()
     {
@@ -30,11 +37,21 @@ final class Emitter
         );
     }
 
+    /**
+     * @return Iterator
+     */
     public function iterate(): Iterator
     {
         return $this->iterator;
     }
 
+    /**
+     * Emits a value to the iterator.
+     *
+     * @param mixed $value
+     * @param int $priority
+     * @return Promise
+     */
     public function emit($value, int $priority = 0): Promise
     {
         $this->values->insert($value, $priority);
@@ -56,6 +73,11 @@ final class Emitter
         return $deferred->promise();
     }
 
+    /**
+     * Completes the iterator.
+     *
+     * @return void
+     */
     public function complete(): void
     {
         if ($this->complete) {
@@ -71,6 +93,13 @@ final class Emitter
         }
     }
 
+    /**
+     * Fails the iterator with the given reason.
+     *
+     * @param \Throwable $reason
+     *
+     * @return void
+     */
     public function fail(\Throwable $reason): void
     {
         $this->complete = new Failure($reason);
@@ -82,6 +111,11 @@ final class Emitter
         }
     }
 
+    /**
+     * Move consumers to the next item.
+     *
+     * @return Promise
+     */
     private function advance(): Promise
     {
         if (null !== $this->waiting) {
@@ -109,6 +143,11 @@ final class Emitter
         return $this->waiting->promise();
     }
 
+    /**
+     * Retrieves the current item.
+     *
+     * @return mixed
+     */
     private function getCurrent()
     {
         if (!$this->hasCurrent && $this->complete) {
