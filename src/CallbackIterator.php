@@ -11,19 +11,24 @@ use Amp\Promise;
  * An iterator implementation that hides emitter's API from consumer code.
  *
  * @internal
+ * @template TValue
  */
 final class CallbackIterator implements Iterator
 {
     /**
-     * @var callable
+     * @var callable(): Promise<bool>
      */
     private $advance;
 
     /**
-     * @var callable
+     * @var callable(): TValue
      */
     private $getCurrent;
 
+    /**
+     * @param callable(): Promise<bool> $advance
+     * @param callable(): TValue $getCurrent
+     */
     public function __construct(callable $advance, callable $getCurrent)
     {
         $this->advance = $advance;

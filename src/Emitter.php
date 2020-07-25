@@ -13,32 +13,44 @@ use Amp\Success;
 /**
  * This emitter works similar to {@link \Amp\Emitter} but allows emitted
  * items to have consumption priority.
+ *
+ * @template TValue
  */
 final class Emitter
 {
+    /** @var StablePriorityQueue<TValue>  */
     private StablePriorityQueue $values;
+    /** @var StablePriorityQueue<Deferred<null>>  */
     private StablePriorityQueue $backPressure;
+
+    /** @var Iterator<TValue> */
     private Iterator $iterator;
 
+    /** @var Deferred<bool>|null */
     private ?Deferred $waiting = null;
+    /** @var Promise<bool>|null */
     private ?Promise $complete = null;
 
-    /** @var mixed */
-    private $current;
+    /** @var TValue|null */
+    private $current = null;
     private bool $hasCurrent = false;
 
     public function __construct()
     {
         $this->values = new StablePriorityQueue();
+        /** @var StablePriorityQueue<Deferred<null>> */
         $this->backPressure = new StablePriorityQueue();
         $this->iterator = new CallbackIterator(
+            /** @psalm-return Promise<bool> */
             fn(): Promise => $this->advance(),
+            /** @psalm-return TValue */
             fn() => $this->getCurrent()
         );
     }
 
     /**
      * @return Iterator
+     * @psalm-return Iterator<TValue>
      */
     public function iterate(): Iterator
     {
@@ -50,7 +62,12 @@ final class Emitter
      *
      * @param mixed $value
      * @param int $priority
-     * @return Promise
+     *
+     * @psalm-param TValue $value
+     *
+     * @return Promise<null>
+     *
+     * @throws \Error If the iterator has completed.
      */
     public function emit($value, int $priority = 0): Promise
     {
@@ -67,6 +84,7 @@ final class Emitter
             return new Success();
         }
 
+        /** @var Deferred<null> $deferred */
         $deferred = new Deferred();
         $this->backPressure->insert($deferred, $priority);
 
@@ -77,6 +95,8 @@ final class Emitter
      * Completes the iterator.
      *
      * @return void
+     *
+     * @throws \Error If the iterator has already been completed.
      */
     public function complete(): void
     {
@@ -102,6 +122,7 @@ final class Emitter
      */
     public function fail(\Throwable $reason): void
     {
+        /** @var Promise<bool> */
         $this->complete = new Failure($reason);
 
         if (null !== $this->waiting) {
@@ -114,7 +135,7 @@ final class Emitter
     /**
      * Move consumers to the next item.
      *
-     * @return Promise
+     * @return Promise<bool>
      */
     private function advance(): Promise
     {
@@ -138,6 +159,7 @@ final class Emitter
             return $this->complete;
         }
 
+        /** @var Deferred<bool> */
         $this->waiting = new Deferred();
 
         return $this->waiting->promise();
@@ -147,6 +169,8 @@ final class Emitter
      * Retrieves the current item.
      *
      * @return mixed
+     *
+     * @psalm-return TValue
      */
     private function getCurrent()
     {

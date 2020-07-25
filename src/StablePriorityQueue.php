@@ -9,6 +9,7 @@ namespace JustBlackBird\AmpPriorityEmitter;
  * equal priority.
  *
  * @internal
+ * @template TValue
  */
 final class StablePriorityQueue
 {
@@ -26,6 +27,8 @@ final class StablePriorityQueue
      *
      * @param mixed $value
      * @param int $priority
+     *
+     * @psalm-param TValue $value
      */
     public function insert($value, int $priority): void
     {
@@ -36,6 +39,10 @@ final class StablePriorityQueue
      * Extracts an item with maximum priority.
      *
      * @return mixed
+     *
+     * @psalm-return TValue
+     * @psalm-suppress MixedReturnStatement
+     * @psalm-suppress MixedInferredReturnType
      */
     public function extract()
     {
