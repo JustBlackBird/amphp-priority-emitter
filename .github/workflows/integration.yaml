@@ -28,11 +28,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          tools: composer
-      - name: Install deps
-        run: composer install
+          tools: phpcs
       - name: Run linter
-        run: vendor/bin/phpcs
+        run: phpcs
 
   psalm:
     name: Psalm
@@ -44,8 +42,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          tools: composer
-      - name: Install deps
-        run: composer install
+          tools: psalm
       - name: Run psalm
-        run: vendor/bin/psalm
+        run: psalm
