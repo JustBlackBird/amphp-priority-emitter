@@ -12,21 +12,18 @@ use Amp\Success;
 
 final class Emitter
 {
-    private \SplPriorityQueue $values;
-    private \SplPriorityQueue $backPressure;
+    private StablePriorityQueue $values;
+    private StablePriorityQueue $backPressure;
     private Iterator $iterator;
     private $current;
     private bool $hasCurrent = false;
     private ?Deferred $waiting = null;
     private ?Promise $complete = null;
 
-    private PrioritySequence $sequence;
-
     public function __construct()
     {
-        $this->values = new \SplPriorityQueue();
-        $this->backPressure = new \SplPriorityQueue();
-        $this->sequence = new PrioritySequence();
+        $this->values = new StablePriorityQueue();
+        $this->backPressure = new StablePriorityQueue();
         $this->iterator = new CallbackIterator(
             fn(): Promise => $this->advance(),
             fn() => $this->getCurrent()
@@ -40,11 +37,9 @@ final class Emitter
 
     public function emit($value, int $priority = 0): Promise
     {
-        $uniquePriority = $this->sequence->next($priority);
+        $this->values->insert($value, $priority);
 
-        $this->values->insert($value, $uniquePriority);
-
-        if ($this->waiting) {
+        if (null !== $this->waiting) {
             $waiting = $this->waiting;
             $this->waiting = null;
             $this->current = $this->values->extract();
@@ -56,12 +51,12 @@ final class Emitter
         }
 
         $deferred = new Deferred();
-        $this->backPressure->insert($deferred, $uniquePriority);
+        $this->backPressure->insert($deferred, $priority);
 
         return $deferred->promise();
     }
 
-    public function complete()
+    public function complete(): void
     {
         if ($this->complete) {
             throw new \Error('CallbackIterator has already been completed');
@@ -76,11 +71,11 @@ final class Emitter
         }
     }
 
-    public function fail(\Throwable $reason)
+    public function fail(\Throwable $reason): void
     {
         $this->complete = new Failure($reason);
 
-        if ($this->waiting !== null) {
+        if (null !== $this->waiting) {
             $waiting = $this->waiting;
             $this->waiting = null;
             $waiting->resolve($this->complete);
