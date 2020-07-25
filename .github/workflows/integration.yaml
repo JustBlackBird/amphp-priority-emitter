@@ -11,8 +11,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          tools: composer, pecl
-          extensions: event
+          tools: composer
       - name: Install deps
         run: composer install
       - name: Run tests

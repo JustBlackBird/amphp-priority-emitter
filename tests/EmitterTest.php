@@ -83,10 +83,10 @@ class EmitterTest extends AsyncTestCase
 
     public function testConsumerIsWaitingForMessagesToBeEmitted(): \Generator
     {
-        $delay = 350;
-        $start = microtime(true);
+        $emitted = false;
 
-        Loop::delay($delay, function () {
+        Loop::delay(350, function () use (&$emitted) {
+            $emitted = true;
             $this->emitter->emit(1);
             $this->emitter->complete();
         });
@@ -96,7 +96,7 @@ class EmitterTest extends AsyncTestCase
             $this->assertSame(1, $iterator->getCurrent());
         }
 
-        $this->assertGreaterThan($delay, (microtime(true) - $start) * 1000);
+        $this->assertTrue($emitted);
     }
 
     public function testBackPressure(): \Generator
