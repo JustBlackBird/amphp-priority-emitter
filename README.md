@@ -1,5 +1,7 @@
 # AMP priority emitter
 
+![Test](https://github.com/JustBlackBird/amphp-priority-emitter/workflows/Test/badge.svg)
+
 > In-memory implementation of async emitter with prioritized messages
 
 ## Why
