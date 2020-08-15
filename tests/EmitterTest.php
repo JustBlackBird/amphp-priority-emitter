@@ -114,6 +114,14 @@ class EmitterTest extends AsyncTestCase
         }
     }
 
+    public function testEmitAfterComplete(): void
+    {
+        $this->expectException(\Error::class);
+
+        $this->emitter->complete();
+        $this->emitter->emit(123);
+    }
+
     public function testBackPressure(): \Generator
     {
         $delay = 350;

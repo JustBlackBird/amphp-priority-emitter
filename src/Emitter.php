@@ -72,6 +72,10 @@ final class Emitter
      */
     public function emit($value, int $priority = 0): Promise
     {
+        if ($this->complete) {
+            throw new \Error("Iterators cannot emit values after calling complete");
+        }
+
         if ($value instanceof ReactPromise) {
             $value = Promise\adapt($value);
         }
