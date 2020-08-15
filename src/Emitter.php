@@ -9,6 +9,7 @@ use Amp\Failure;
 use Amp\Iterator;
 use Amp\Promise;
 use Amp\Success;
+use React\Promise\PromiseInterface as ReactPromise;
 
 /**
  * This emitter works similar to {@link \Amp\Emitter} but allows emitted
@@ -71,6 +72,32 @@ final class Emitter
      */
     public function emit($value, int $priority = 0): Promise
     {
+        if ($value instanceof ReactPromise) {
+            $value = Promise\adapt($value);
+        }
+
+        if ($value instanceof Promise) {
+            $deferred = new Deferred;
+            $value->onResolve(function ($e, $v) use ($deferred, $priority) {
+                if ($this->complete) {
+                    $deferred->fail(
+                        new \Error("The iterator was completed before the promise result could be emitted")
+                    );
+                    return;
+                }
+
+                if ($e) {
+                    $this->fail($e);
+                    $deferred->fail($e);
+                    return;
+                }
+
+                $deferred->resolve($this->emit($v, $priority));
+            });
+
+            return $deferred->promise();
+        }
+
         $this->values->insert($value, $priority);
 
         if (null !== $this->waiting) {

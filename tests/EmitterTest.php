@@ -99,6 +99,21 @@ class EmitterTest extends AsyncTestCase
         $this->assertTrue($emitted);
     }
 
+    public function testEmitPromise(): \Generator
+    {
+        Loop::defer(function () {
+            $d = new Deferred();
+            $this->emitter->emit($d->promise());
+            $d->resolve(42);
+            $this->emitter->complete();
+        });
+
+        $iterator = $this->emitter->iterate();
+        while (yield $iterator->advance()) {
+            $this->assertSame(42, $iterator->getCurrent());
+        }
+    }
+
     public function testBackPressure(): \Generator
     {
         $delay = 350;
