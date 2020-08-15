@@ -81,8 +81,13 @@ final class Emitter
         }
 
         if ($value instanceof Promise) {
+            /** @var Deferred<null> */
             $deferred = new Deferred();
-            $value->onResolve(function ($e, $v) use ($deferred, $priority) {
+            /**
+             * @psalm-suppress MixedMethodCall
+             * @psalm-suppress MissingClosureParamType
+             */
+            $value->onResolve(function (?\Throwable $e, $v) use ($deferred, $priority): void {
                 if ($this->complete) {
                     $deferred->fail(
                         new \Error("The iterator was completed before the promise result could be emitted")
@@ -115,7 +120,7 @@ final class Emitter
             return new Success();
         }
 
-        /** @var Deferred<null> $deferred */
+        /** @var Deferred<null> */
         $deferred = new Deferred();
         $this->backPressure->insert($deferred, $priority);
 
