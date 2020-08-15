@@ -81,7 +81,7 @@ final class Emitter
         }
 
         if ($value instanceof Promise) {
-            $deferred = new Deferred;
+            $deferred = new Deferred();
             $value->onResolve(function ($e, $v) use ($deferred, $priority) {
                 if ($this->complete) {
                     $deferred->fail(
