@@ -9,6 +9,7 @@ use Amp\Failure;
 use Amp\Iterator;
 use Amp\Promise;
 use Amp\Success;
+use JustBlackBird\StablePriorityQueue\Queue as PriorityQueue;
 use React\Promise\PromiseInterface as ReactPromise;
 
 /**
@@ -19,10 +20,10 @@ use React\Promise\PromiseInterface as ReactPromise;
  */
 final class Emitter
 {
-    /** @var StablePriorityQueue<TValue>  */
-    private StablePriorityQueue $values;
-    /** @var StablePriorityQueue<Deferred<null>>  */
-    private StablePriorityQueue $backPressure;
+    /** @var PriorityQueue<TValue>  */
+    private PriorityQueue $values;
+    /** @var PriorityQueue<Deferred<null>>  */
+    private PriorityQueue $backPressure;
 
     /** @var Iterator<TValue> */
     private Iterator $iterator;
@@ -38,9 +39,9 @@ final class Emitter
 
     public function __construct()
     {
-        $this->values = new StablePriorityQueue();
-        /** @var StablePriorityQueue<Deferred<null>> */
-        $this->backPressure = new StablePriorityQueue();
+        $this->values = new PriorityQueue();
+        /** @var PriorityQueue<Deferred<null>> */
+        $this->backPressure = new PriorityQueue();
         $this->iterator = new CallbackIterator(
             /** @psalm-return Promise<bool> */
             fn(): Promise => $this->advance(),

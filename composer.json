@@ -16,7 +16,8 @@
     "require": {
         "php": "^7.4",
         "amphp/amp": "^2.4",
-        "react/promise": "^2"
+        "react/promise": "^2",
+        "justblackbird/stable-priority-queue": "^0.1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.2",
